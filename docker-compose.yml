@@ -1,0 +1,81 @@
+version: '2'
+services:
+
+  ## Config Servers
+  config01:
+    image: mongo:4.2.0
+    mem_limit: 400m
+    restart: always
+    command: mongod --port 27017 --configsvr --replSet configserver --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/config01_data:/data/db
+  config02:
+    image: mongo:4.2.0
+    mem_limit: 400m
+    restart: always
+    command: mongod --port 27017 --configsvr --replSet configserver --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/config02_data:/data/db
+  config03:
+    image: mongo:4.2.0
+    mem_limit: 400m
+    restart: always
+    command: mongod --port 27017 --configsvr --replSet configserver --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/config03_data:/data/db
+
+  ## Shards
+  shard01a:
+    image: mongo:4.2.0
+    mem_limit: 4096m
+    restart: always
+    command: mongod --port 27018 --shardsvr --replSet shard01 --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/shard01a_data:/data/db
+  shard01b:
+    image: mongo:4.2.0
+    mem_limit: 4096m
+    restart: always
+    command: mongod --port 27018 --shardsvr --replSet shard01 --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/shard01b_data:/data/db
+  shard02a:
+    image: mongo:4.2.0
+    mem_limit: 4096m
+    restart: always
+    command: mongod --port 27019 --shardsvr --replSet shard02 --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/shard02a_data:/data/db
+  shard02b:
+    image: mongo:4.2.0
+    mem_limit: 4096m
+    restart: always
+    command: mongod --port 27019 --shardsvr --replSet shard02 --dbpath=/data/db
+    volumes:
+      - ./scripts:/scripts
+      - /tmp/shard02b_data:/data/db
+
+  ## Router
+  router:
+    image: mongo:4.2.0
+    mem_limit: 400m
+    restart: always
+    command: mongos --port 27017 --configdb configserver/config01:27017,config02:27017,config03:27017 --bind_ip_all
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      - config01
+      - config02
+      - config03
+      - shard01a
+      - shard01b
+      - shard02a
+      - shard02b
