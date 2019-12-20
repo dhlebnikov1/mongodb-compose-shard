@@ -19,7 +19,7 @@ Heavily inspired by [https://github.com/jfollenfant/mongodb-sharding-docker-comp
 **Start all of the containers** (daemonized)
 
 ```
-docker-compose --compatibility up -d
+docker-compose up -d
 ```
 
 **Initialize the replica sets (config server and shards) and router**
